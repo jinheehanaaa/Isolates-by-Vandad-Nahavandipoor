@@ -18,6 +18,7 @@
 - COMMON MISTAKE: Don't parse json on main isolate.
 - After async (data comes back), you can parse on main isolate.
 - - (but since it's not user-initiated action, you may don't want to parse on main isolate.)
+- Isolate.exit => pass value, not copy
 
 # Flow
 ## Step 1: Communication b/w main function of isolate & isolate entrance (1 data)
@@ -33,9 +34,10 @@
 - - <code>.takeWhile</code>: Condition for string
 - - <code>.cast</code>: cast to Stream<String>
 
-# Step 3: 
-
+# Step 3:  1:12:45
+- Main function: Make it return iterable value <code>_getPersons(){}</code>
+- Entrance function: Accept the request & send msg <code>getPersons(){}</code>
 
 # Resources
-- [1][Isolates](https://youtu.be/WCKmLQfpUEU)
+- [1][Isolates Tutorial](https://youtu.be/WCKmLQfpUEU)
 - [2][Official Doc](https://api.flutter.dev/flutter/dart-isolate/SendPort/send.html)
