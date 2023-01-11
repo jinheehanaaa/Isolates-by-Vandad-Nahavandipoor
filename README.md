@@ -11,13 +11,23 @@
 
 # Note (Technical)
 - SendPort is consumed by main function [2]
-- Using <code>Isolate.exit</code> the memory is assigned to the receiving isolate and its complexity is O(1)
+- Using <code>Isolate.exit</code> the memory is assigned to the receiving isolate and its complexity is O(1) 
 - So you don't want to pass the big object from the main function of isolate to spawner. (Rarely used) <code>Isolate.spawn()</code>
 
 # Tip
 - COMMON MISTAKE: Don't parse json on main isolate.
 - After async (data comes back), you can parse on main isolate.
 - - (but since it's not user-initiated action, you may don't want to parse on main isolate.)
+
+# Flow
+## Step 1: Communication b/w main function of isolate & isolate entrance (1 data)
+- Receive first data to Entrance function using Future & spawn
+- Send list of Persons after using _getPersons(){}
+- Send this to Spawner (Entrance function)
+# Step 2: Stream
+- Stream isolate: send the current date back to us 10 times in <code>Stream<String></code>
+
+
 
 # Resources
 - [1][Isolates](https://youtu.be/WCKmLQfpUEU)

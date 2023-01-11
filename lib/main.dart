@@ -1,8 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
-
 import 'package:flutter/material.dart';
+import 'dart:developer' as devtools show log;
+
+extension Log on Object {
+  void log() => devtools.log(toString());
+}
 
 void main() {
   runApp(
@@ -31,8 +35,16 @@ class Person {
         age = json["age"] as int;
 }
 
+// Entrance function to isolate (Consumer)
+Future<Iterable<Person>> getPersons() async {
+  final rp = ReceivePort(); // Grab values
+  await Isolate.spawn(_getPersons, rp.sendPort);
+  return await rp.first;
+}
+
+// Main body of isolate
 void _getPersons(SendPort sp) async {
-  const url = 'http://127.0.0.1:5500/apis/people1.json';
+  const url = 'http://10.0.2.2:5500/apis/people1.json';
   final persons = await HttpClient()
       .getUrl(Uri.parse(url))
       .then((req) => req.close())
@@ -49,9 +61,15 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home Page'),
-      ),
-    );
+        appBar: AppBar(
+          title: const Text('Home Page'),
+        ),
+        body: ElevatedButton(
+          onPressed: () async {
+            final persons = await getPersons();
+            persons.log();
+          },
+          child: const Text('Press me'),
+        ));
   }
 }
