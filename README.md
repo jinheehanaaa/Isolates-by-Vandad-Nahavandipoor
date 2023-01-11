@@ -21,12 +21,19 @@
 
 # Flow
 ## Step 1: Communication b/w main function of isolate & isolate entrance (1 data)
-- Receive first data to Entrance function using Future & spawn
-- Send list of Persons after using _getPersons(){}
-- Send this to Spawner (Entrance function)
+- Main function: Send list of Persons <code>_getPersons(){}</code>
+- Consumer function: Receive first data to Entrance function using Future & spawn <code>_getMessages(){}</code>
+
 # Step 2: Stream
 - Stream isolate: send the current date back to us 10 times in <code>Stream<String></code>
+- Main function: Grab currnet date & time and send to the SendPort <code>_getMessages</code>
+- Consumer function:  <code>getMessages</code> 
+- - <code>.asStream</code>: Turn Future into isolate of Stream
+- - <code>.asyncExpand</code>: Change data type to ReceivePort data type
+- - <code>.takeWhile</code>: Condition for string
+- - <code>.cast</code>: cast to Stream<String>
 
+# Step 3: 
 
 
 # Resources

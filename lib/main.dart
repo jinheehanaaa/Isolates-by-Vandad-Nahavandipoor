@@ -20,39 +20,32 @@ void main() {
   );
 }
 
-@immutable
-class Person {
-  final String name;
-  final int age;
-
-  const Person({
-    required this.name,
-    required this.age,
-  });
-
-  Person.fromJson(Map<String, dynamic> json)
-      : name = json["name"] as String,
-        age = json["age"] as int;
+// Consumer/Entrance function
+Stream<String> getMessages() {
+  final rp = ReceivePort();
+  return Isolate.spawn(_getMessages, rp.sendPort)
+      .asStream()
+      .asyncExpand((_) => rp)
+      .takeWhile((element) => element is String)
+      .cast();
 }
 
-// Entrance function to isolate (Consumer)
-Future<Iterable<Person>> getPersons() async {
-  final rp = ReceivePort(); // Grab values
-  await Isolate.spawn(_getPersons, rp.sendPort);
-  return await rp.first;
+// Main function of isolate
+void _getMessages(SendPort sp) async {
+  // Grab the current date every second for 10 times
+  await for (final now in Stream.periodic(
+    const Duration(seconds: 1),
+    (_) => DateTime.now().toIso8601String(),
+  ).take(10)) {
+    sp.send(now);
+  }
+  Isolate.exit(sp);
 }
 
-// Main body of isolate
-void _getPersons(SendPort sp) async {
-  const url = 'http://10.0.2.2:5500/apis/people1.json';
-  final persons = await HttpClient()
-      .getUrl(Uri.parse(url))
-      .then((req) => req.close())
-      .then((response) => response.transform(utf8.decoder).join())
-      .then((jsonString) => json.decode(jsonString) as List<dynamic>)
-      .then((json) => json.map((map) => Person.fromJson(map)));
-
-  Isolate.exit(sp, persons);
+void testIt() async {
+  await for (final msg in getMessages()) {
+    msg.log();
+  }
 }
 
 class HomePage extends StatelessWidget {
@@ -65,9 +58,8 @@ class HomePage extends StatelessWidget {
           title: const Text('Home Page'),
         ),
         body: ElevatedButton(
-          onPressed: () async {
-            final persons = await getPersons();
-            persons.log();
+          onPressed: () {
+            testIt();
           },
           child: const Text('Press me'),
         ));
